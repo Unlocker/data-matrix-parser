@@ -7,10 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DataMatrixParserTest {
 
     @Test
-    void shouldParseSampleOfficialDoc() {
+    void shouldParseSampleFirstOfficialDoc() {
         String input = "010460043993125621JgXJ5.T\u001d8005112000\u001d930001\u001d923zbrLA==\u001d24014276281";
         String result = DataMatrixParser.dataMatrixToAtol(input);
         assertEquals("44 4d 04 2f 1f 96 81 78 4a 67 58 4a 35 2e 54 31 31 32 30 30 30", result);
+    }
+
+    @Test
+    void shouldParseSampleSecondOfficialDoc() {
+        String input = "010460406000600021N4N57RSCBUZTQ\u001d2403004002910161218\u001d1724010191ffd0\u001d92tIAF/YVoU4roQS3M/m4z78yFq0fc/WsSmLeX5QkF/YVWwy8IMYAeiQ91Xa2z/fFSJcOkb2N+uUUmfr4n0mOX0Q==";
+        String result = DataMatrixParser.dataMatrixToAtol(input);
+        assertEquals("44 4d 04 2f f7 5c 76 70 4e 34 4e 35 37 52 53 43 42 55 5a 54 51", result);
     }
 
     @Test
