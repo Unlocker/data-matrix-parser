@@ -36,18 +36,21 @@ public class DataMatrixParser {
      */
     public static String dataMatrixToAtol(String dataMatrix) {
         String[] groups = dataMatrix.split(GROUP_DELIMITER);
-        Matcher firstMatcher = SERIAL_NUMBER_GROUP_PATTERN.matcher(groups[0]);
-        if (!firstMatcher.matches()) {
+        if (groups.length < 2) {
+            throw new RuntimeException("Must contain at least 2 groups");
+        }
+        int startGroupIndex = 1;
+        Matcher matcher = SERIAL_NUMBER_GROUP_PATTERN.matcher(groups[startGroupIndex]);
+        if (!matcher.matches()) {
             throw new RuntimeException("First group did not match the pattern");
         }
-        String rawSerialNumber = new BigInteger(firstMatcher.group(1), 10).toString(16);
+        String rawSerialNumber = new BigInteger(matcher.group(1), 10).toString(16);
         // padding left with zeros
-        String serialNumber = (rawSerialNumber.length() < SERIAL_NUMBER_LENGTH)
-                ? "0".repeat(SERIAL_NUMBER_LENGTH - rawSerialNumber.length()) + rawSerialNumber
-                : rawSerialNumber;
-        String partNumber = convertStringToHex(firstMatcher.group(2));
+        String padding = "0".repeat(SERIAL_NUMBER_LENGTH);
+        String serialNumber = padding.substring(rawSerialNumber.length()) + rawSerialNumber;
+        String partNumber = convertStringToHex(matcher.group(2));
         String measurement = "";
-        for (int i = 1; i < groups.length; i++) {
+        for (int i = startGroupIndex + 1; i < groups.length; i++) {
             String current = groups[i];
             if (current.startsWith(MEASUREMENT_GROUP_PREFIX)) {
                 measurement = convertStringToHex(current.substring(MEASUREMENT_GROUP_PREFIX.length()));
