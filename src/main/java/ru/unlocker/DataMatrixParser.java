@@ -5,6 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parses GS1 Data Matrix code into fiscal data format.
+ */
 public class DataMatrixParser {
 
     /**
@@ -39,11 +42,18 @@ public class DataMatrixParser {
         if (groups.length < 2) {
             throw new RuntimeException("Must contain at least 2 groups");
         }
-        int startGroupIndex = 1;
-        Matcher matcher = SERIAL_NUMBER_GROUP_PATTERN.matcher(groups[startGroupIndex]);
-        if (!matcher.matches()) {
-            throw new RuntimeException("First group did not match the pattern");
+        // tries to find the first group
+        final int groupIndexMax = groups.length - 1;
+        int startGroupIndex = -1;
+        Matcher matcher;
+        do {
+            startGroupIndex++;
+            matcher = SERIAL_NUMBER_GROUP_PATTERN.matcher(groups[startGroupIndex]);
+        } while (!(matcher.matches() || startGroupIndex >= groupIndexMax));
+        if (startGroupIndex == groupIndexMax) {
+            throw new RuntimeException("Start group not found");
         }
+        // the first group found then encode it
         String rawSerialNumber = new BigInteger(matcher.group(1), 10).toString(16);
         // padding left with zeros
         String padding = "0".repeat(SERIAL_NUMBER_LENGTH);

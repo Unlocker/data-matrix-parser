@@ -1,9 +1,13 @@
 package ru.unlocker;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Test suite for {@link DataMatrixParser}.
+ */
 class DataMatrixParserTest {
 
     @Test
@@ -41,6 +45,31 @@ class DataMatrixParserTest {
         assertEquals("44 4d 04 41 a9 9e 96 56 29 78 2f 4a 74 47 49 2b 4c 45 27 5f 75", result);
     }
 
+    @Test
+    void shouldParseSampleFour_withoutLeadingGS() {
+        String input = "010468006509499021h,8T4A8(G5xB)\u001d91003A\u001d92I47sJj5MnQJ98ps+LidUO62yermNTPrkGCHdB8kkTMAau9Tx3l3HWFETbrVdSES4pywJiLymoepfI1dfTKzWtw==";
+        String result = DataMatrixParser.dataMatrixToAtol(input);
+        assertEquals("44 4d 04 41 a9 9e 15 4e 68 2c 38 54 34 41 38 28 47 35 78 42 29", result);
+    }
 
+    @Test
+    void shouldParseSampleFive_withoutLeadingGS() {
+        String input = "010290000025903421Xt(.U1AJSR%JO\u001d918039\u001d92/zNXU3g2kJdVKtuOQrl5v5bAVZXaonE6iWUNfaVvJumg8kDOOJmVKd2RI198i70/HnkWCEVZ39TmwHNkjQyEoA==";
+        String result = DataMatrixParser.dataMatrixToAtol(input);
+        assertEquals("44 4d 02 a3 35 7c 3b da 58 74 28 2e 55 31 41 4a 53 52 25 4a 4f", result);
+    }
 
+    @Test
+    void shouldThrowWhenCodeIsNotSeparated() {
+        String input = "010290000025903421Xt(.U1AJSR%JO91803992/zNXU3g2kJdV";
+        RuntimeException assertion = Assertions.assertThrows(RuntimeException.class, () -> DataMatrixParser.dataMatrixToAtol(input));
+        assertEquals("Must contain at least 2 groups", assertion.getMessage());
+    }
+
+    @Test
+    void shouldThrowWhenStartGroupNotFound() {
+        String input = "92I47sJj5MnQJ98ps+Lid\u001dUO62yermNTPrkGCHdB8kkTMAau\u001dXt(.U1AJSR%JO91803992/zNXU3g2kJdV";
+        RuntimeException assertion = Assertions.assertThrows(RuntimeException.class, () -> DataMatrixParser.dataMatrixToAtol(input));
+        assertEquals("Start group not found", assertion.getMessage());
+    }
 }
